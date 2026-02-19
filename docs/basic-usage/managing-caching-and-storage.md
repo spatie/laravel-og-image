@@ -1,6 +1,6 @@
 ---
 title: Managing caching and storage
-weight: 6
+weight: 4
 ---
 
 When a visitor loads a page with an `<x-og-image>` component, the package:
@@ -29,5 +29,7 @@ Because image URLs are based on the md5 hash of the HTML content, changing the t
 By default, images are stored on the `public` disk at `og-images`. You can change this via the [customizing screenshots](/docs/laravel-og-image/v1/basic-usage/customizing-screenshots) page:
 
 ```php
+use Spatie\OgImage\Facades\OgImage;
+
 OgImage::disk('s3', 'og-images');
 ```

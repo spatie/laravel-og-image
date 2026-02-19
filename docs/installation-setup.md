@@ -79,5 +79,18 @@ return [
      */
     'format' => 'jpeg',
 
+    /*
+     * The actions used by this package. You can replace any of them with
+     * your own class to customize the behavior. Your custom class should
+     * extend the default action.
+     *
+     * Learn more: https://spatie.be/docs/laravel-og-image/v1/advanced-usage/customizing-actions
+     */
+    'actions' => [
+        'generate_og_image' => \Spatie\OgImage\Actions\GenerateOgImageAction::class,
+        'inject_og_image_fallback' => \Spatie\OgImage\Actions\InjectOgImageFallbackAction::class,
+        'render_og_image_screenshot' => \Spatie\OgImage\Actions\RenderOgImageScreenshotAction::class,
+    ],
+
 ];
 ```

@@ -63,6 +63,7 @@ For full control over the screenshot process, use `configureScreenshot()`. The c
 
 ```php
 use Spatie\LaravelScreenshot\ScreenshotBuilder;
+use Spatie\OgImage\Enums\WaitUntil;
 
 OgImage::configureScreenshot(function (ScreenshotBuilder $screenshot) {
     $screenshot
@@ -83,7 +84,7 @@ OgImage::useCloudflare(
     });
 ```
 
-### Common options
+## Common options
 
 ### deviceScaleFactor
 

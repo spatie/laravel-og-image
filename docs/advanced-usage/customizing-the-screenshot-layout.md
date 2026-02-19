@@ -28,3 +28,5 @@ The configured width in pixels (default: 1200).
 ### $height
 
 The configured height in pixels (default: 630).
+
+For even deeper control over how the screenshot page is rendered, you can override the `RenderOgImageScreenshotAction` — see [customizing actions](/docs/laravel-og-image/v1/advanced-usage/customizing-actions).
