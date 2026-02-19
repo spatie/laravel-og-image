@@ -1,9 +1,19 @@
-# Generate OG images for your Laravel app
+<div align="left">
+    <a href="https://spatie.be/open-source?utm_source=github&utm_medium=banner&utm_campaign=laravel-og-image">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="https://spatie.be/packages/header/laravel-og-image/html/dark.webp?123">
+        <img alt="Logo for Laravel Open Graph Image" src="https://spatie.be/packages/header/laravel-og-image/html/light.webp?123">
+      </picture>
+    </a>
 
+<h1>Generate OG images for your Laravel app</h1>
+    
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/spatie/laravel-og-image.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-og-image)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/spatie/laravel-og-image/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/spatie/laravel-og-image/actions?query=workflow%3Arun-tests+branch%3Amain)
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/spatie/laravel-og-image/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/spatie/laravel-og-image/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/spatie/laravel-og-image.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-og-image)
+    
+</div>
 
 This package makes it easy to generate Open Graph images for your Laravel application. Define your OG image HTML inline in your Blade views, and the package automatically generates screenshot images using [spatie/laravel-screenshot](https://github.com/spatie/laravel-screenshot), serves them via a dedicated route, and caches them on disk.
 
