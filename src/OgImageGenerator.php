@@ -53,7 +53,6 @@ class OgImageGenerator
         return $this;
     }
 
-
     public function generate(string $url, string $path, string $format): void
     {
         $width = config('og-image.width', 1200);

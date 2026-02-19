@@ -71,5 +71,4 @@ class OgImage
 
         return new HtmlString($tags);
     }
-
 }
