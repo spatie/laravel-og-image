@@ -13,7 +13,7 @@ class GenerateOgImageAction
     public function execute(string $filename): Response
     {
         $hash = $this->parseHash($filename);
-        
+
         $format = $this->parseFormat($filename);
 
         if (! $hash || ! $format) {
