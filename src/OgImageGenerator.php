@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Request;
 use Spatie\LaravelScreenshot\Drivers\CloudflareDriver;
 use Spatie\LaravelScreenshot\Drivers\ScreenshotDriver;
 use Spatie\LaravelScreenshot\Facades\Screenshot;
-use Spatie\LaravelScreenshot\ScreenshotBuilder;
 
 class OgImageGenerator
 {
