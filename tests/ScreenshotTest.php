@@ -26,6 +26,7 @@ it('can generate a real screenshot from html', function () {
     Screenshot::html($html)
         ->size(1200, 630)
         ->deviceScaleFactor(1)
+        ->withBrowsershot(fn (Browsershot $browsershot) => $browsershot->noSandbox())
         ->disk(config('og-image.disk', 'public'), 'public')
         ->save('og-images/test.jpeg');
 
@@ -55,6 +56,7 @@ it('can generate a screenshot with custom dimensions', function () {
     Screenshot::html($html)
         ->size(800, 400)
         ->deviceScaleFactor(1)
+        ->withBrowsershot(fn (Browsershot $browsershot) => $browsershot->noSandbox())
         ->disk(config('og-image.disk', 'public'), 'public')
         ->save('og-images/custom.jpeg');
 
