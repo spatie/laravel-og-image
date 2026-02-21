@@ -55,7 +55,7 @@ class GenerateOgImageAction
 
             try {
                 app(OgImageGenerator::class)->generate(
-                    $pageUrl . '?' . config('og-image.preview_parameter', 'ogimage'),
+                    $pageUrl.'?'.config('og-image.preview_parameter', 'ogimage'),
                     $path,
                     $dimensions['width'] ?? null,
                     $dimensions['height'] ?? null,
