@@ -10,6 +10,14 @@ beforeEach(function () {
     $this->ogImage = app(OgImage::class);
 });
 
+it('can resolve the og image service', function () {
+    expect(app(OgImage::class))->toBeInstanceOf(OgImage::class);
+});
+
+it('can resolve the og image generator', function () {
+    expect(app(OgImageGenerator::class))->toBeInstanceOf(OgImageGenerator::class);
+});
+
 it('can hash html content', function () {
     $hash = $this->ogImage->hash('<div>Hello</div>');
 
