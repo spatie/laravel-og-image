@@ -1,6 +1,6 @@
 ---
 title: Troubleshooting
-weight: 5
+weight: 7
 ---
 
 ## Chrome/Chromium not found
@@ -80,18 +80,3 @@ This is useful for:
 - Verifying that CSS and fonts are loading
 - Testing custom dimensions set via `width` and `height` attributes
 
-## Pre-generating images
-
-If you want to generate OG images ahead of time (for example, after a deploy), you can use the artisan command:
-
-```bash
-php artisan og-image:generate https://yourapp.com/page1 https://yourapp.com/page2
-```
-
-Or programmatically:
-
-```php
-use Spatie\OgImage\Facades\OgImage;
-
-$imageUrl = OgImage::generateForUrl('https://yourapp.com/blog/my-post');
-```

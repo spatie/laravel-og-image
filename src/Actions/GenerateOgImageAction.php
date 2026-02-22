@@ -22,26 +22,58 @@ class GenerateOgImageAction
             abort(404);
         }
 
-        if ($cachedImageUrl = $this->getCachedImageUrl($hash, $format)) {
-            return $this->redirectWithCacheHeaders($cachedImageUrl);
+        $path = app(OgImage::class)->imagePath($hash, $format);
+        $disk = Storage::disk(config('og-image.disk', 'public'));
+
+        if (! $disk->exists($path)) {
+            $pageUrl = app(OgImage::class)->getUrlFromCache($hash);
+
+            if (! $pageUrl) {
+                abort(404);
+            }
+
+            $this->generateImage($hash, $pageUrl, $path, $disk);
         }
 
-        $pageUrl = app(OgImage::class)->getUrlFromCache($hash);
-
-        if (! $pageUrl) {
-            abort(404);
-        }
-
-        $this->generateImage($hash, $format, $pageUrl);
-
-        return $this->redirectWithCacheHeaders($this->getCachedImageUrl($hash, $format));
+        return $this->serveImage($disk, $path, $format);
     }
 
-    protected function redirectWithCacheHeaders(string $url): Response
+    protected function serveImage($disk, string $path, string $format): Response
     {
         $maxAge = config('og-image.redirect_cache_max_age', 60 * 60 * 24);
 
-        $redirect = redirect($url);
+        $diskName = config('og-image.disk', 'public');
+        $driver = config("filesystems.disks.{$diskName}.driver");
+
+        if ($driver !== 'local') {
+            return $this->redirectToImage($disk->url($path), $maxAge);
+        }
+
+        return $this->respondWithImage($disk, $path, $format, $maxAge);
+    }
+
+    protected function respondWithImage($disk, string $path, string $format, int $maxAge): Response
+    {
+        $mimeType = match ($format) {
+            'png' => 'image/png',
+            'webp' => 'image/webp',
+            default => 'image/jpeg',
+        };
+
+        $headers = [
+            'Content-Type' => $mimeType,
+        ];
+
+        if ($maxAge > 0) {
+            $headers['Cache-Control'] = "public, max-age={$maxAge}";
+        }
+
+        return response($disk->get($path), 200, $headers);
+    }
+
+    protected function redirectToImage(string $url, int $maxAge): Response
+    {
+        $redirect = redirect($url, 301);
 
         if ($maxAge > 0) {
             $redirect->header('Cache-Control', "public, max-age={$maxAge}");
@@ -50,19 +82,13 @@ class GenerateOgImageAction
         return $redirect;
     }
 
-    protected function getCachedImageUrl(string $hash, string $format): ?string
+    protected function generateImage(string $hash, string $pageUrl, string $path, $disk): void
     {
-        return app(OgImage::class)->getImageUrlFromCache($hash, $format);
-    }
-
-    protected function generateImage(string $hash, string $format, string $pageUrl): void
-    {
-        $path = app(OgImage::class)->imagePath($hash, $format);
         $lockTimeout = config('og-image.lock_timeout', 60);
         $dimensions = app(OgImage::class)->getDimensionsFromCache($hash);
 
-        Cache::lock("og-image-generate:{$hash}", $lockTimeout)->block($lockTimeout, function () use ($hash, $format, $pageUrl, $path, $dimensions) {
-            if ($this->getCachedImageUrl($hash, $format)) {
+        Cache::lock("og-image-generate:{$hash}", $lockTimeout)->block($lockTimeout, function () use ($pageUrl, $path, $disk, $dimensions) {
+            if ($disk->exists($path)) {
                 return;
             }
 
@@ -78,9 +104,6 @@ class GenerateOgImageAction
 
                 throw CouldNotGenerateOgImage::screenshotFailed($pageUrl, $exception);
             }
-
-            $disk = Storage::disk(config('og-image.disk', 'public'));
-            app(OgImage::class)->storeImageUrlInCache($hash, $format, $disk->url($path));
         });
     }
 }

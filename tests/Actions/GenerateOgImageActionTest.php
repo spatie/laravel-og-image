@@ -21,12 +21,17 @@ it('uses the configured lock timeout', function () {
         ->once()
         ->withArgs(function ($url, $path, $width, $height) {
             return str_contains($url, '?ogimage');
+        })
+        ->andReturnUsing(function ($url, $path) {
+            Storage::disk('public')->put($path, 'fake-jpeg-content');
         });
 
     app()->instance(OgImageGenerator::class, $mockGenerator);
 
     $action = app(GenerateOgImageAction::class);
-    $action->execute('abc123.jpeg');
+    $response = $action->execute('abc123.jpeg');
+
+    expect($response->getStatusCode())->toBe(200);
 });
 
 it('throws CouldNotGenerateOgImage when screenshot fails', function () {
@@ -54,6 +59,9 @@ it('passes cached dimensions to the generator', function () {
         ->once()
         ->withArgs(function ($url, $path, $width, $height) {
             return $width === 800 && $height === 400;
+        })
+        ->andReturnUsing(function ($url, $path) {
+            Storage::disk('public')->put($path, 'fake-jpeg-content');
         });
 
     app()->instance(OgImageGenerator::class, $mockGenerator);
@@ -71,10 +79,64 @@ it('passes null dimensions when none are cached', function () {
         ->once()
         ->withArgs(function ($url, $path, $width, $height) {
             return $width === null && $height === null;
+        })
+        ->andReturnUsing(function ($url, $path) {
+            Storage::disk('public')->put($path, 'fake-jpeg-content');
         });
 
     app()->instance(OgImageGenerator::class, $mockGenerator);
 
     $action = app(GenerateOgImageAction::class);
     $action->execute('abc123.jpeg');
+});
+
+it('serves the image directly when it already exists on disk', function () {
+    Storage::disk('public')->put('og-images/abc123.jpeg', 'fake-jpeg-content');
+
+    $action = app(GenerateOgImageAction::class);
+    $response = $action->execute('abc123.jpeg');
+
+    expect($response->getStatusCode())->toBe(200);
+    expect($response->headers->get('Content-Type'))->toBe('image/jpeg');
+    expect($response->getContent())->toBe('fake-jpeg-content');
+});
+
+it('does not regenerate when image already exists on disk', function () {
+    $ogImage = app(OgImage::class);
+    $ogImage->storeUrlInCache('abc123', 'https://example.com/page');
+
+    Storage::disk('public')->put('og-images/abc123.jpeg', 'existing-content');
+
+    $mockGenerator = Mockery::mock(OgImageGenerator::class);
+    $mockGenerator->shouldNotReceive('generate');
+    app()->instance(OgImageGenerator::class, $mockGenerator);
+
+    $action = app(GenerateOgImageAction::class);
+    $response = $action->execute('abc123.jpeg');
+
+    expect($response->getContent())->toBe('existing-content');
+});
+
+it('redirects to the disk url for remote disks', function () {
+    Storage::fake('s3');
+    config()->set('og-image.disk', 's3');
+    config()->set('filesystems.disks.s3.driver', 's3');
+
+    Storage::disk('s3')->put('og-images/abc123.jpeg', 'fake-jpeg-content');
+
+    $action = app(GenerateOgImageAction::class);
+    $response = $action->execute('abc123.jpeg');
+
+    expect($response->getStatusCode())->toBe(301);
+    expect($response->headers->get('Location'))->toContain('abc123.jpeg');
+});
+
+it('serves the image directly for local disks', function () {
+    Storage::disk('public')->put('og-images/abc123.jpeg', 'fake-jpeg-content');
+
+    $action = app(GenerateOgImageAction::class);
+    $response = $action->execute('abc123.jpeg');
+
+    expect($response->getStatusCode())->toBe(200);
+    expect($response->headers->get('Content-Type'))->toBe('image/jpeg');
 });

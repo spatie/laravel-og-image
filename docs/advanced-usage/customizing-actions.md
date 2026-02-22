@@ -19,9 +19,9 @@ The following actions are registered in the `og-image` config file:
 
 ### GenerateOgImageAction
 
-Handles the full flow when a social platform requests an OG image URL (`/og-image/{hash}.jpeg`): checking cache, looking up the page URL, taking a screenshot with locking, and caching the result.
+Handles the full flow when a social platform requests an OG image URL (`/og-image/{hash}.jpeg`): checking if the image exists on disk, looking up the page URL, taking a screenshot with locking, and serving the image directly.
 
-Overridable methods: `parseHash`, `parseFormat`, `getCachedImageUrl`, `getPageUrl`, `generateImage`, `imagePath`, `takeScreenshot`, `cacheImageUrl`.
+Overridable methods: `serveImage`, `generateImage`.
 
 ### InjectOgImageFallbackAction
 

@@ -1,6 +1,6 @@
 ---
 title: Defining fallback images
-weight: 2
+weight: 4
 ---
 
 When a page doesn't use the `<x-og-image>` component, no OG image meta tags are generated. You can register a fallback to automatically provide an OG image for these pages.

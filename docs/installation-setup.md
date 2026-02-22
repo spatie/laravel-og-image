@@ -80,6 +80,34 @@ return [
     'format' => 'jpeg',
 
     /*
+     * The image quality for JPEG and WebP formats (1-100).
+     * Set to null to use the driver's default quality.
+     */
+    'quality' => null,
+
+    /*
+     * The query parameter used to trigger OG image preview mode.
+     * Appending this parameter to any page URL renders just the
+     * template content at the configured dimensions.
+     */
+    'preview_parameter' => 'ogimage',
+
+    /*
+     * The number of seconds that CDNs and browsers may cache the image
+     * response from /og-image/{hash}.jpeg.
+     * Since image URLs are content-hashed, this is safe to cache aggressively.
+     * Set to 0 to disable caching.
+     */
+    'redirect_cache_max_age' => 60 * 60 * 24,
+
+    /*
+     * The maximum number of seconds to wait for a lock when generating
+     * an OG image. This prevents concurrent requests from generating
+     * the same image simultaneously.
+     */
+    'lock_timeout' => 60,
+
+    /*
      * The actions used by this package. You can replace any of them with
      * your own class to customize the behavior. Your custom class should
      * extend the default action.

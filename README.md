@@ -53,8 +53,8 @@ This outputs a hidden `<template>` tag and `<meta>` tags pointing to a generated
 2. The page URL is cached, keyed by the md5 hash of the HTML content
 3. Meta tags point to `/og-image/{hash}.jpeg`
 4. When that URL is first requested, the page is visited with `?ogimage` appended, rendering just the template content with the page's full CSS at 1200×630
-5. The generated image is saved to your public disk
-6. Subsequent requests serve the image directly from disk
+5. The generated image is saved to your public disk and served directly with cache headers
+6. Subsequent requests serve the image from disk (or CDN cache)
 
 Preview any OG image by appending `?ogimage` to the page URL.
 

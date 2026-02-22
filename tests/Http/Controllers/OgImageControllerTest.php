@@ -11,31 +11,47 @@ it('returns 404 when image does not exist and url is not in cache', function () 
     $this->get('/og-image/nonexistent.png')->assertNotFound();
 });
 
-it('redirects to the cached image url', function () {
+it('serves the image directly for png', function () {
     $ogImage = app(OgImage::class);
-    $ogImage->storeImageUrlInCache('abc123', 'png', 'https://example.com/og-images/abc123.png');
+    $ogImage->storeUrlInCache('abc123', 'https://example.com/page');
+
+    Storage::disk('public')->put('og-images/abc123.png', 'fake-png-content');
 
     $response = $this->get('/og-image/abc123.png');
 
-    $response->assertRedirect('https://example.com/og-images/abc123.png');
+    $response->assertOk();
+    $response->assertHeader('Content-Type', 'image/png');
+    expect($response->getContent())->toBe('fake-png-content');
 });
 
-it('redirects to cached jpeg image url', function () {
-    $ogImage = app(OgImage::class);
-    $ogImage->storeImageUrlInCache('abc123', 'jpeg', 'https://example.com/og-images/abc123.jpeg');
+it('serves the image directly for jpeg', function () {
+    Storage::disk('public')->put('og-images/abc123.jpeg', 'fake-jpeg-content');
 
     $response = $this->get('/og-image/abc123.jpeg');
 
-    $response->assertRedirect('https://example.com/og-images/abc123.jpeg');
+    $response->assertOk();
+    $response->assertHeader('Content-Type', 'image/jpeg');
+    expect($response->getContent())->toBe('fake-jpeg-content');
 });
 
-it('redirects to cached webp image url', function () {
-    $ogImage = app(OgImage::class);
-    $ogImage->storeImageUrlInCache('abc123', 'webp', 'https://example.com/og-images/abc123.webp');
+it('serves the image directly for webp', function () {
+    Storage::disk('public')->put('og-images/abc123.webp', 'fake-webp-content');
 
     $response = $this->get('/og-image/abc123.webp');
 
-    $response->assertRedirect('https://example.com/og-images/abc123.webp');
+    $response->assertOk();
+    $response->assertHeader('Content-Type', 'image/webp');
+    expect($response->getContent())->toBe('fake-webp-content');
+});
+
+it('includes cache-control headers', function () {
+    Storage::disk('public')->put('og-images/abc123.jpeg', 'fake-jpeg-content');
+
+    $response = $this->get('/og-image/abc123.jpeg');
+
+    expect($response->headers->get('Cache-Control'))
+        ->toContain('public')
+        ->toContain('max-age=86400');
 });
 
 it('rejects invalid filenames', function () {

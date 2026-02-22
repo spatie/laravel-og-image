@@ -11,7 +11,7 @@ There are three stages to understand:
 
 1. Your page renders: the Blade component outputs meta tags and a hidden HTML template
 2. A crawler fetches the image: the package generates a screenshot on the fly
-3. Next time your page renders: the meta tags now point straight to the generated image
+3. Subsequent requests: the image is served directly from disk
 
 Let's walk through each stage.
 
@@ -40,28 +40,23 @@ The `<template>` tag is natively invisible in browsers, so visitors don't see it
 
 When Twitter, Facebook, or LinkedIn sees the `og:image` meta tag, it makes a request to `https://yourapp.com/og-image/a1b2c3d4e5f6.jpeg`. Here's what happens:
 
-1. The request hits `OgImageController`, which looks up the hash in the cache
-2. The controller finds the original page URL and visits it with `?ogimage` appended
+1. The request hits `OgImageController`, which checks if the image already exists on disk
+2. If the image doesn't exist yet, the controller looks up the original page URL from cache and visits it with `?ogimage` appended
 3. `RenderOgImageMiddleware` detects the `?ogimage` parameter and replaces the response with a minimal HTML page: just your page's `<head>` (preserving all CSS, fonts, and Vite assets) and the template content, displayed at 1200x630 pixels
 4. A screenshot is taken and saved to the configured disk (default: `public`)
-5. The controller redirects the crawler to the static file (e.g. `/storage/og-images/a1b2c3d4e5f6.jpeg`)
+5. For local disks, the image is served directly with `Cache-Control` headers. For remote disks (S3, etc.), a 301 redirect is issued to the storage URL
 
 Because the screenshot uses your actual page's `<head>`, your OG image inherits all of your CSS, fonts, and Vite assets. No separate stylesheet configuration needed.
 
-## Stage 3: Subsequent page renders
+## Stage 3: Subsequent requests
 
-Now that the image exists, the next time a visitor loads your page, the `<x-og-image>` component detects that the image has already been generated. Instead of pointing to the `/og-image/` route, the meta tags now point directly to the storage URL:
-
-```html
-<meta property="og:image" content="https://yourapp.com/storage/og-images/a1b2c3d4e5f6.jpeg">
-<meta name="twitter:image" content="https://yourapp.com/storage/og-images/a1b2c3d4e5f6.jpeg">
-```
-
-This means crawlers fetch the image directly from disk (or S3/CDN) without hitting Laravel at all.
+Once the image exists on disk, subsequent requests to `/og-image/a1b2c3d4e5f6.jpeg` serve the image directly without taking another screenshot. The meta tags always use the same stable `/og-image/{hash}.{format}` URL, which makes this work well with page caching and CDNs like Cloudflare.
 
 ## Performance
 
-After the image has been generated, there are two optimizations that keep things fast:
+The `/og-image/` route is designed to be fast and CDN-friendly:
 
-- Subsequent page renders point crawlers straight to the static file via direct URLs in the meta tags, bypassing Laravel entirely
-- The `/og-image/` route runs without any middleware (no sessions, CSRF, or cookies), so if a crawler does hit it before a second page render has occurred, it's just a cache lookup and a redirect
+- The route runs without any middleware (no sessions, CSRF, or cookies)
+- Images are served directly with `Cache-Control` headers, so CDNs cache the response
+- The meta tag URL is stable and content-hashed, so it works correctly with page caching (Cloudflare, Varnish, etc.)
+- The component skips redundant cache writes when the hash is already known

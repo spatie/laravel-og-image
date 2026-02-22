@@ -53,6 +53,10 @@ class OgImage
 
     public function storeUrlInCache(string $hash, string $url): void
     {
+        if (Cache::has("og-image:{$hash}")) {
+            return;
+        }
+
         Cache::forever("og-image:{$hash}", $url);
     }
 
@@ -61,18 +65,12 @@ class OgImage
         return Cache::get("og-image:{$hash}");
     }
 
-    public function storeImageUrlInCache(string $hash, string $format, string $url): void
-    {
-        Cache::forever("og-image-url:{$hash}.{$format}", $url);
-    }
-
-    public function getImageUrlFromCache(string $hash, string $format): ?string
-    {
-        return Cache::get("og-image-url:{$hash}.{$format}");
-    }
-
     public function storeDimensionsInCache(string $hash, int $width, int $height): void
     {
+        if (Cache::has("og-image-dimensions:{$hash}")) {
+            return;
+        }
+
         Cache::forever("og-image-dimensions:{$hash}", compact('width', 'height'));
     }
 
@@ -90,7 +88,7 @@ class OgImage
 
     public function metaTags(string $hash, string $format): HtmlString
     {
-        $url = e($this->getImageUrlFromCache($hash, $format) ?? $this->url($hash, $format));
+        $url = e($this->url($hash, $format));
 
         $tags = implode(PHP_EOL, [
             "<meta property=\"og:image\" content=\"{$url}\">",

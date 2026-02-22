@@ -22,13 +22,17 @@ class RenderOgImageMiddleware
             return $response;
         }
 
-        $this->injectFallbackIfNeeded($request, $response, $response->getContent());
+        $isPreviewRequest = $request->has(config('og-image.preview_parameter', 'ogimage'));
 
-        if (! $request->has(config('og-image.preview_parameter', 'ogimage'))) {
+        if (! $isPreviewRequest && ! app(OgImageGenerator::class)->getFallbackUsing()) {
             return $response;
         }
 
-        $this->renderScreenshotIfNeeded($response);
+        $this->injectFallbackIfNeeded($request, $response, $response->getContent());
+
+        if ($isPreviewRequest) {
+            $this->renderScreenshotIfNeeded($response);
+        }
 
         return $response;
     }

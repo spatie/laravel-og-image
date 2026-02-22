@@ -51,6 +51,20 @@ it('can store and retrieve a url from cache', function () {
     expect($this->ogImage->getUrlFromCache('test-hash'))->toBe('https://example.com/my-page');
 });
 
+it('skips writing to cache when url is already cached', function () {
+    Cache::shouldReceive('has')->with('og-image:test-hash')->once()->andReturn(true);
+    Cache::shouldReceive('forever')->never();
+
+    $this->ogImage->storeUrlInCache('test-hash', 'https://example.com/my-page');
+});
+
+it('skips writing dimensions to cache when already cached', function () {
+    Cache::shouldReceive('has')->with('og-image-dimensions:test-hash')->once()->andReturn(true);
+    Cache::shouldReceive('forever')->never();
+
+    $this->ogImage->storeDimensionsInCache('test-hash', 800, 400);
+});
+
 it('returns null when url is not in cache', function () {
     expect($this->ogImage->getUrlFromCache('nonexistent'))->toBeNull();
 });
@@ -166,14 +180,11 @@ it('uses the route url in meta tags when image is not yet cached', function () {
         ->toContain("og-image/{$hash}.jpeg");
 });
 
-it('uses the direct storage url in meta tags when image is cached', function () {
+it('always uses the route url in meta tags', function () {
     $hash = md5('<div>Hello</div>');
-
-    $this->ogImage->storeImageUrlInCache($hash, 'jpeg', 'https://cdn.example.com/og-images/abc123.jpeg');
 
     $metaTags = $this->ogImage->metaTags($hash, 'jpeg');
 
     expect($metaTags->toHtml())
-        ->toContain('https://cdn.example.com/og-images/abc123.jpeg')
-        ->not->toContain("og-image/{$hash}.jpeg");
+        ->toContain("og-image/{$hash}.jpeg");
 });

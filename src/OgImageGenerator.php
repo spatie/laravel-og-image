@@ -155,15 +155,8 @@ class OgImageGenerator
         $imagePath = $ogImage->imagePath($hash, $format);
         $disk = Storage::disk(config('og-image.disk', 'public'));
 
-        if ($cachedUrl = $ogImage->getImageUrlFromCache($hash, $format)) {
-            return $cachedUrl;
-        }
-
         if ($disk->exists($imagePath)) {
-            $imageUrl = $disk->url($imagePath);
-            $ogImage->storeImageUrlInCache($hash, $format, $imageUrl);
-
-            return $imageUrl;
+            return $disk->url($imagePath);
         }
 
         $ogImage->storeUrlInCache($hash, $pageUrl);
@@ -178,9 +171,6 @@ class OgImageGenerator
 
         $this->generate("{$pageUrl}?{$previewParameter}", $imagePath, $width, $height);
 
-        $imageUrl = $disk->url($imagePath);
-        $ogImage->storeImageUrlInCache($hash, $format, $imageUrl);
-
-        return $imageUrl;
+        return $disk->url($imagePath);
     }
 }

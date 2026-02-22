@@ -44,22 +44,23 @@ it('creates an og image when visiting the og image url', function () {
 
     $response = $this->get("/og-image/{$hash}.jpeg");
 
-    $response->assertRedirect();
+    $response->assertOk();
+    $response->assertHeader('Content-Type', 'image/jpeg');
 
     Storage::disk('public')->assertExists("og-images/{$hash}.jpeg");
-
-    expect(Cache::get("og-image-url:{$hash}.jpeg"))->not->toBeNull();
 });
 
-it('redirects immediately when the og image is already cached', function () {
+it('serves the image directly when it already exists on disk', function () {
     $response = $this->get('/test-page');
 
     preg_match('/og-image\/([a-f0-9]+)\.jpeg/', $response->getContent(), $matches);
     $hash = $matches[1];
 
-    app(OgImage::class)->storeImageUrlInCache($hash, 'jpeg', 'https://example.com/storage/og-images/cached.jpeg');
+    Storage::disk('public')->put("og-images/{$hash}.jpeg", 'fake-jpeg-content');
 
     $response = $this->get("/og-image/{$hash}.jpeg");
 
-    $response->assertRedirect('https://example.com/storage/og-images/cached.jpeg');
+    $response->assertOk();
+    $response->assertHeader('Content-Type', 'image/jpeg');
+    expect($response->getContent())->toBe('fake-jpeg-content');
 });

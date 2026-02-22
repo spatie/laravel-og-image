@@ -30,7 +30,7 @@ This outputs a hidden `<template>` tag (natively invisible in browsers) and the 
 
 The image URL contains a hash of your HTML content. When the content changes, the hash changes, so crawlers pick up the new image automatically.
 
-On first render, the meta tags point to `/og-image/{hash}.jpeg`, which triggers image generation. Once the image has been generated, subsequent renders output the direct storage URL (e.g. `https://yourapp.com/storage/og-images/a1b2c3d4e5f6.jpeg`), so crawlers can fetch the image without hitting Laravel.
+The meta tags always point to `/og-image/{hash}.jpeg`. When that URL is first requested, the package generates the screenshot and serves it directly. The response includes `Cache-Control` headers, so CDNs like Cloudflare cache the image automatically.
 
 ## Using a Blade view
 

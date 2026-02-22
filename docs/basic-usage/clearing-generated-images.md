@@ -1,6 +1,6 @@
 ---
 title: Clearing generated images
-weight: 5
+weight: 6
 ---
 
 To delete all generated OG images from disk:
