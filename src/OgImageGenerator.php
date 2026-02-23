@@ -120,6 +120,7 @@ class OgImageGenerator
                 $width ?? config('og-image.width', 1200),
                 $height ?? config('og-image.height', 630),
             )
+            ->deviceScaleFactor(2)
             ->disk(config('og-image.disk', 'public'), 'public');
 
         if ($quality = config('og-image.quality')) {

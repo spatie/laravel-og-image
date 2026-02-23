@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Spatie\OgImage\Actions\InjectOgImageFallbackAction;
 use Spatie\OgImage\Actions\RenderOgImageScreenshotAction;
+use Spatie\OgImage\OgImage;
 use Spatie\OgImage\OgImageGenerator;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,13 +23,22 @@ class RenderOgImageMiddleware
             return $response;
         }
 
+        $content = $response->getContent();
         $isPreviewRequest = $request->has(config('og-image.preview_parameter', 'ogimage'));
+        $hasTemplate = str_contains($content, '<template data-og-image');
 
-        if (! $isPreviewRequest && ! app(OgImageGenerator::class)->getFallbackUsing()) {
+        if (! $isPreviewRequest && ! $hasTemplate && ! app(OgImageGenerator::class)->getFallbackUsing()) {
             return $response;
         }
 
-        $this->injectFallbackIfNeeded($request, $response, $response->getContent());
+        if (! $hasTemplate) {
+            $content = $this->injectFallback($request, $content);
+        }
+
+        if ($content !== null) {
+            $content = $this->injectMetaTagsInHead($content);
+            $response->setContent($content);
+        }
 
         if ($isPreviewRequest) {
             $this->renderScreenshotIfNeeded($response);
@@ -58,21 +68,27 @@ class RenderOgImageMiddleware
         return false;
     }
 
-    protected function injectFallbackIfNeeded(Request $request, Response $response, string $content): void
+    protected function injectFallback(Request $request, string $content): ?string
     {
-        if (str_contains($content, '<template data-og-image')) {
-            return;
-        }
-
         $fallbackAction = OgImageGenerator::getActionClass('inject_og_image_fallback', InjectOgImageFallbackAction::class);
 
-        $content = $fallbackAction->execute($request, $content);
+        return $fallbackAction->execute($request, $content) ?? $content;
+    }
 
-        if ($content === null) {
-            return;
+    protected function injectMetaTagsInHead(string $content): string
+    {
+        if (! preg_match('/data-og-hash="([a-f0-9]+)"/', $content, $hashMatch)) {
+            return $content;
         }
 
-        $response->setContent($content);
+        $hash = $hashMatch[1];
+
+        preg_match('/data-og-format="(\w+)"/', $content, $formatMatch);
+        $format = $formatMatch[1] ?? config('og-image.format', 'jpeg');
+
+        $metaTags = app(OgImage::class)->metaTags($hash, $format)->toHtml();
+
+        return str_ireplace('</head>', $metaTags.PHP_EOL.'</head>', $content);
     }
 
     protected function renderScreenshotIfNeeded(Response $response): void

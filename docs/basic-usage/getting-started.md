@@ -15,22 +15,31 @@ Place the `<x-og-image>` component anywhere in your Blade view:
 </x-og-image>
 ```
 
-This outputs a hidden `<template>` tag (natively invisible in browsers) and the meta tags:
+The component outputs a hidden `<template>` tag (natively invisible in browsers) in the page body. The package middleware automatically injects the `og:image`, `twitter:image`, and `twitter:card` meta tags into the `<head>`:
 
 ```html
-<template data-og-image>
-    <div class="w-full h-full bg-blue-900 text-white flex items-center justify-center">
-        <h1 class="text-6xl font-bold">My Post Title</h1>
-    </div>
-</template>
-<meta property="og:image" content="https://yourapp.com/og-image/a1b2c3d4e5f6.jpeg">
-<meta name="twitter:image" content="https://yourapp.com/og-image/a1b2c3d4e5f6.jpeg">
-<meta name="twitter:card" content="summary_large_image">
+<head>
+    <!-- your existing head content -->
+    <meta property="og:image" content="https://yourapp.com/og-image/a1b2c3d4e5f6.jpeg">
+    <meta name="twitter:image" content="https://yourapp.com/og-image/a1b2c3d4e5f6.jpeg">
+    <meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+    <template data-og-image>
+        <div class="w-full h-full bg-blue-900 text-white flex items-center justify-center">
+            <h1 class="text-6xl font-bold">My Post Title</h1>
+        </div>
+    </template>
+</body>
 ```
 
 The image URL contains a hash of your HTML content. When the content changes, the hash changes, so crawlers pick up the new image automatically.
 
 The meta tags always point to `/og-image/{hash}.jpeg`. When that URL is first requested, the package generates the screenshot and serves it directly. The response includes `Cache-Control` headers, so CDNs like Cloudflare cache the image automatically.
+
+## Migrating from manual meta tags
+
+If your views already have `og:image`, `twitter:image`, or `twitter:card` meta tags, remove them. The package handles these automatically. Keep any other OG meta tags you have (`og:title`, `og:description`, `og:type`, `article:published_time`, etc.) — the package only manages the image-related tags.
 
 ## Using a Blade view
 

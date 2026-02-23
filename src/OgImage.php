@@ -22,6 +22,8 @@ class OgImage
 
         $attributes = collect([
             'data-og-image' => true,
+            'data-og-hash' => $hash,
+            'data-og-format' => $format,
             'data-og-width' => $width,
             'data-og-height' => $height,
         ])
@@ -29,9 +31,7 @@ class OgImage
             ->map(fn ($value, $key) => $value === true ? $key : "{$key}=\"{$value}\"")
             ->implode(' ');
 
-        $template = "<template {$attributes}>{$html}</template>";
-
-        return new HtmlString("{$template}".PHP_EOL.$this->metaTags($hash, $format));
+        return new HtmlString("<template {$attributes}>{$html}</template>");
     }
 
     public function url(string $hash, ?string $format = null): string

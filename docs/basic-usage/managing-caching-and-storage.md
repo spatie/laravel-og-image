@@ -68,16 +68,34 @@ The nginx `try_files` optimization does not apply to S3, since the files are not
 
 ## Pre-generating images
 
-If you want to generate OG images ahead of time (for example, after a deploy), you can use the artisan command:
+By default, OG images are generated lazily — on the first request from a crawler. If you want to generate them ahead of time, you can use the artisan command:
 
 ```bash
 php artisan og-image:generate https://yourapp.com/page1 https://yourapp.com/page2
 ```
 
-Or programmatically:
+Or programmatically with `generateForUrl()`:
 
 ```php
 use Spatie\OgImage\Facades\OgImage;
 
 $imageUrl = OgImage::generateForUrl('https://yourapp.com/blog/my-post');
+```
+
+This is useful for generating images after saving content, for example in a queued job:
+
+```php
+use Spatie\OgImage\Facades\OgImage;
+
+class PublishPostAction
+{
+    public function execute(Post $post): void
+    {
+        // ... publish logic ...
+
+        dispatch(function () use ($post) {
+            OgImage::generateForUrl($post->url);
+        });
+    }
+}
 ```

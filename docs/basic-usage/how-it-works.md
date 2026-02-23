@@ -9,7 +9,7 @@ When you share a link on social media, platforms like Twitter, Facebook, and Lin
 
 There are three stages to understand:
 
-1. Your page renders: the Blade component outputs meta tags and a hidden HTML template
+1. Your page renders: the Blade component outputs a hidden HTML template, and the middleware injects meta tags into the `<head>`
 2. A crawler fetches the image: the package generates a screenshot on the fly
 3. Subsequent requests: the image is served directly from disk
 
@@ -17,21 +17,25 @@ Let's walk through each stage.
 
 ## Stage 1: Your page renders for the first time
 
-When a visitor (or a crawler) loads your page, the `<x-og-image>` Blade component does three things:
+When a visitor (or a crawler) loads your page, two things happen:
 
-1. It hashes the template HTML to produce a unique key (e.g. `a1b2c3d4e5f6`)
-2. It stores the current page URL in the cache, keyed by that hash
-3. It outputs a hidden `<template>` tag and `og:image` meta tags
+1. The `<x-og-image>` Blade component hashes the template HTML to produce a unique key (e.g. `a1b2c3d4e5f6`), stores the current page URL in cache keyed by that hash, and outputs a hidden `<template>` tag in the page body
+2. The package middleware detects the `<template>` tag and injects `og:image`, `twitter:image`, and `twitter:card` meta tags into the `<head>`
 
 The HTML in the response looks like this:
 
 ```html
-<template data-og-image>
-    <div class="...">My Post Title</div>
-</template>
-<meta property="og:image" content="https://yourapp.com/og-image/a1b2c3d4e5f6.jpeg">
-<meta name="twitter:image" content="https://yourapp.com/og-image/a1b2c3d4e5f6.jpeg">
-<meta name="twitter:card" content="summary_large_image">
+<head>
+    <!-- your existing head content -->
+    <meta property="og:image" content="https://yourapp.com/og-image/a1b2c3d4e5f6.jpeg">
+    <meta name="twitter:image" content="https://yourapp.com/og-image/a1b2c3d4e5f6.jpeg">
+    <meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+    <template data-og-image>
+        <div class="...">My Post Title</div>
+    </template>
+</body>
 ```
 
 The `<template>` tag is natively invisible in browsers, so visitors don't see it. The meta tags point to a route in your app (`/og-image/a1b2c3d4e5f6.jpeg`). The image doesn't exist yet, but that's fine. Crawlers will request it next.

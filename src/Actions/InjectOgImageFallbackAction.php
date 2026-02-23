@@ -17,13 +17,15 @@ class InjectOgImageFallbackAction
             return null;
         }
 
-        $hash = app(OgImage::class)->hash($fallbackHtml);
+        $ogImage = app(OgImage::class);
+        $hash = $ogImage->hash($fallbackHtml);
+        $format = config('og-image.format', 'jpeg');
 
-        app(OgImage::class)->storeUrlInCache($hash, app(OgImageGenerator::class)->resolveScreenshotUrl());
+        $ogImage->storeUrlInCache($hash, app(OgImageGenerator::class)->resolveScreenshotUrl());
 
-        $content = $this->injectBeforeClosingTag($content, 'head', app(OgImage::class)->metaTags($hash, config('og-image.format', 'jpeg'))->toHtml());
+        $template = "<template data-og-image data-og-hash=\"{$hash}\" data-og-format=\"{$format}\">{$fallbackHtml}</template>";
 
-        return $this->injectBeforeClosingTag($content, 'body', "<template data-og-image>{$fallbackHtml}</template>");
+        return $this->injectBeforeClosingTag($content, 'body', $template);
     }
 
     protected function renderFallback(Request $request): ?string

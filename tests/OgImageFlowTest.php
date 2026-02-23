@@ -24,8 +24,14 @@ it('creates an og image when visiting the og image url', function () {
     $content = $response->getContent();
 
     expect($content)
-        ->toContain('<template data-og-image>')
+        ->toContain('data-og-image')
         ->toContain('<meta property="og:image"');
+
+    // Meta tags should be in the head
+    $headEnd = stripos($content, '</head>');
+    $ogImagePos = strpos($content, '<meta property="og:image"');
+
+    expect($ogImagePos)->toBeLessThan($headEnd);
 
     preg_match('/og-image\/([a-f0-9]+)\.jpeg/', $content, $matches);
     $hash = $matches[1];

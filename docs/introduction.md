@@ -15,7 +15,7 @@ Here's a quick example using the Blade component:
 </x-og-image>
 ```
 
-This will render a hidden `<template>` tag containing your HTML, along with the appropriate `<meta>` tags pointing to a generated screenshot. The screenshot is taken at 1200×630 pixels, the standard OG image size.
+This will render a hidden `<template>` tag containing your HTML. The package middleware automatically injects the `og:image` and `twitter:image` meta tags into your page's `<head>`. The screenshot is taken at 1200×630 pixels (at 2x resolution for retina sharpness), the standard OG image size.
 
 Because the OG image template lives on the actual page, it inherits your page's existing CSS, fonts, and Vite assets. No separate CSS configuration needed.
 

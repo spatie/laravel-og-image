@@ -24,17 +24,16 @@ it('can hash html content', function () {
     expect($hash)->toBe(md5('<div>Hello</div>'));
 });
 
-it('can generate template and meta tags from html', function () {
+it('can generate template tag from html', function () {
     $result = $this->ogImage->html('<div>Hello</div>');
 
     $hash = md5('<div>Hello</div>');
 
     expect($result->toHtml())
-        ->toContain('<template data-og-image><div>Hello</div></template>')
-        ->toContain('<meta property="og:image"')
-        ->toContain('<meta name="twitter:image"')
-        ->toContain('<meta name="twitter:card" content="summary_large_image">')
-        ->toContain($hash.'.jpeg');
+        ->toContain("data-og-hash=\"{$hash}\"")
+        ->toContain('data-og-format="jpeg"')
+        ->toContain('<div>Hello</div></template>')
+        ->not->toContain('<meta property="og:image"');
 });
 
 it('stores the current url in cache', function () {

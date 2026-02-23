@@ -17,21 +17,30 @@ beforeEach(function () {
         </head>
         <body>
             <h1>My Page</h1>
-            <template data-og-image><div class="og-content">Hello OG</div></template>
-            <meta property="og:image" content="https://example.com/og-image/abc123.png">
+            <template data-og-image data-og-hash="abc123def456" data-og-format="jpeg"><div class="og-content">Hello OG</div></template>
         </body>
         </html>
         HTML);
     });
 });
 
-it('does not modify the response without ogimage parameter', function () {
+it('injects meta tags into head for pages with template', function () {
     $response = $this->get('/test-page');
 
     $response->assertOk();
-    expect($response->getContent())
-        ->toContain('<h1>My Page</h1>')
-        ->toContain('<template data-og-image>');
+    $content = $response->getContent();
+
+    expect($content)
+        ->toContain('<template data-og-image')
+        ->toContain('<meta property="og:image"')
+        ->toContain('<meta name="twitter:image"')
+        ->toContain('<meta name="twitter:card" content="summary_large_image">');
+
+    // Meta tags should be in the head, not in the body
+    $headEnd = stripos($content, '</head>');
+    $ogImagePos = strpos($content, '<meta property="og:image"');
+
+    expect($ogImagePos)->toBeLessThan($headEnd);
 });
 
 it('renders only the template content with ogimage parameter', function () {
@@ -46,7 +55,7 @@ it('renders only the template content with ogimage parameter', function () {
         ->toContain('width: 1200px')
         ->toContain('height: 630px')
         ->not->toContain('<h1>My Page</h1>')
-        ->not->toContain('<template data-og-image>');
+        ->not->toContain('<template data-og-image');
 });
 
 it('preserves the head content from the original page', function () {
@@ -107,11 +116,18 @@ it('injects fallback template and meta tags when no template exists', function (
     $content = $response->getContent();
 
     expect($content)
-        ->toContain('<template data-og-image>')
+        ->toContain('<template data-og-image')
+        ->toContain('data-og-hash=')
         ->toContain('Fallback Title')
         ->toContain('<meta property="og:image"')
         ->toContain('<meta name="twitter:image"')
         ->toContain('<meta name="twitter:card" content="summary_large_image">');
+
+    // Meta tags should be in the head
+    $headEnd = stripos($content, '</head>');
+    $ogImagePos = strpos($content, '<meta property="og:image"');
+
+    expect($ogImagePos)->toBeLessThan($headEnd);
 });
 
 it('renders the fallback template with ogimage parameter', function () {
@@ -173,7 +189,7 @@ it('skips fallback when closure returns null', function () {
     $response = $this->get('/no-template');
 
     expect($response->getContent())
-        ->not->toContain('<template data-og-image>')
+        ->not->toContain('<template data-og-image')
         ->not->toContain('og:image');
 });
 
@@ -185,7 +201,7 @@ it('does not inject fallback when no fallback is registered', function () {
     $response = $this->get('/no-template');
 
     expect($response->getContent())
-        ->not->toContain('<template data-og-image>')
+        ->not->toContain('<template data-og-image')
         ->not->toContain('og:image');
 });
 
@@ -196,7 +212,7 @@ it('detects template tags with custom dimension attributes', function () {
         <html>
         <head><meta charset="utf-8"></head>
         <body>
-            <template data-og-image data-og-width="800" data-og-height="400"><div>Custom</div></template>
+            <template data-og-image data-og-hash="customhash123" data-og-format="jpeg" data-og-width="800" data-og-height="400"><div>Custom</div></template>
         </body>
         </html>
         HTML);
@@ -215,7 +231,7 @@ it('renders custom dimensions in screenshot mode', function () {
         <html>
         <head><meta charset="utf-8"></head>
         <body>
-            <template data-og-image data-og-width="800" data-og-height="400"><div>Custom</div></template>
+            <template data-og-image data-og-hash="customhash123" data-og-format="jpeg" data-og-width="800" data-og-height="400"><div>Custom</div></template>
         </body>
         </html>
         HTML);
