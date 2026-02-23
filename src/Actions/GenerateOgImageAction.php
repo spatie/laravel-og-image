@@ -87,7 +87,7 @@ class GenerateOgImageAction
         $lockTimeout = config('og-image.lock_timeout', 60);
         $pageUrl = $cached['url'];
 
-        Cache::lock("og-image-generate:".md5($pageUrl), $lockTimeout)->block($lockTimeout, function () use ($cached, $pageUrl, $path, $disk) {
+        Cache::lock('og-image-generate:'.md5($pageUrl), $lockTimeout)->block($lockTimeout, function () use ($cached, $pageUrl, $path, $disk) {
             if ($disk->exists($path)) {
                 return;
             }
