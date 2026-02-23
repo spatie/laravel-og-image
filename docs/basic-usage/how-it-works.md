@@ -42,13 +42,14 @@ The `<template>` tag is natively invisible in browsers, so visitors don't see it
 
 ## Stage 2: A crawler requests the image
 
-When Twitter, Facebook, or LinkedIn sees the `og:image` meta tag, it makes a request to `https://yourapp.com/og-image/a1b2c3d4e5f6.jpeg`. Here's what happens:
+When Twitter, Facebook, or LinkedIn sees the `og:image` meta tag, it makes a request to `https://yourapp.com/og-image/a1b2c3d4e5f6.jpeg`. The `a1b2c3d4e5f6` part is a hash generated from the HTML content of your OG image template. When you change the template content, the hash changes, producing a new URL. Here's what happens:
 
 1. The request hits `OgImageController`, which checks if the image already exists on disk
-2. If the image doesn't exist yet, the controller looks up the original page URL from cache and visits it with `?ogimage` appended
-3. `RenderOgImageMiddleware` detects the `?ogimage` parameter and replaces the response with a minimal HTML page: just your page's `<head>` (preserving all CSS, fonts, and Vite assets) and the template content, displayed at 1200x630 pixels
-4. A screenshot is taken and saved to the configured disk (default: `public`)
-5. For local disks, the image is served directly with `Cache-Control` headers. For remote disks (S3, etc.), a 301 redirect is issued to the storage URL
+2. If the image doesn't exist yet, the controller uses the hash from the URL to look up the original page URL from cache (stored there by the Blade component during rendering)
+3. The controller tells headless Chrome to visit that page URL with `?ogimage` appended. This is a separate internal HTTP request to your app
+4. `RenderOgImageMiddleware` detects the `?ogimage` parameter and replaces the response with a minimal HTML page: just your page's `<head>` (preserving all CSS, fonts, and Vite assets) and the template content, displayed at 1200x630 pixels
+5. Chrome takes a screenshot of that page and saves it to the configured disk (default: `public`)
+6. The controller serves the image back to the crawler. For local disks, the image is returned directly with `Cache-Control` headers. For remote disks (S3, etc.), a 301 redirect is issued to the storage URL
 
 Because the screenshot uses your actual page's `<head>`, your OG image inherits all of your CSS, fonts, and Vite assets. No separate stylesheet configuration needed.
 

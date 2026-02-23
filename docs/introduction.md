@@ -19,8 +19,7 @@ This will render a hidden `<template>` tag containing your HTML. The package mid
 
 Because the OG image template lives on the actual page, it inherits your page's existing CSS, fonts, and Vite assets. No separate CSS configuration needed.
 
-The approach of using a `<template>` tag to define OG images inline with your page's own CSS is inspired by [OGKit](https://ogkit.dev) by [Peter Suhm](https://x.com/petersuhm). If you don't want to self-host the generation of OG images, OGKit is a great alternative.
-
+The approach of using a `<template>` tag to define OG images inline with your page's own CSS is inspired by [OGKit](https://ogkit.dev) by [Peter Suhm](https://x.com/petersuhm). If you don't want to self-host the generation of OG images, look no further than OGKit.
 
 ## We got badges
 

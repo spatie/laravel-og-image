@@ -5,7 +5,7 @@ weight: 7
 
 ## Chrome/Chromium not found
 
-The package uses [spatie/laravel-screenshot](https://github.com/spatie/laravel-screenshot) under the hood, which requires a Chrome or Chromium binary. If you get an error about Chrome not being found, make sure it's installed on your server.
+When using the default Browsershot driver, a Chrome or Chromium binary must be installed on your server. If you get an error about Chrome not being found, make sure it's installed.
 
 On Ubuntu/Debian:
 
@@ -36,7 +36,7 @@ If your screenshots appear blank or have missing styles/fonts, it's usually beca
 Common fixes:
 
 - Make sure your CSS is loaded via `<link>` tags in `<head>` (the package preserves the full `<head>` during screenshots)
-- For web fonts, ensure they're loaded from `<head>` — the package carries over all `<link>` and `<style>` tags
+- For web fonts, ensure they're loaded from `<head>`. The package carries over all `<link>` and `<style>` tags
 - Add a delay before the screenshot is taken:
 
 ```php

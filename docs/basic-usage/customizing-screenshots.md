@@ -91,7 +91,7 @@ OgImage::configureScreenshot(function (ScreenshotBuilder $screenshot) {
 });
 ```
 
-This can be combined with `useCloudflare()` or `useDriver()` — the driver is applied first, then your `configureScreenshot` callback runs on top:
+This can be combined with `useCloudflare()` or `useDriver()`. The driver is applied first, then your `configureScreenshot` callback runs on top:
 
 ```php
 OgImage::useCloudflare(

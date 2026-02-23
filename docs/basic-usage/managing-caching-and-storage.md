@@ -25,9 +25,9 @@ If your site is behind Cloudflare, no extra configuration is needed. When the fi
 2. PHP generates (or reads) the image and responds with `Cache-Control: public, max-age=86400`
 3. Cloudflare caches the response
 
-All subsequent requests for that image are served directly from Cloudflare's edge — PHP is never hit again (until the cache expires). Since image URLs are content-hashed, different content always produces a different URL, so stale cache is not a concern.
+All subsequent requests for that image are served directly from Cloudflare's edge. PHP is never hit again (until the cache expires). Since image URLs are content-hashed, different content always produces a different URL, so stale cache is not a concern.
 
-You can adjust the cache duration in your config:
+This duration is controlled by the `redirect_cache_max_age` config value, which sets the `Cache-Control: max-age` header on the image response. The default is 1 day. Since image URLs are content-hashed, you can safely increase this:
 
 ```php
 // config/og-image.php
@@ -52,7 +52,7 @@ This tells nginx to first check if the image exists at `/storage/og-images/{hash
 
 ### Forge
 
-If you're using Laravel Forge, you can add this rule via the Nginx tab on the site settings page. Add it to the "before" section or edit the site's nginx config directly.
+If you're using Laravel Forge, go to your site's settings and click the Nginx tab. Add the `location` block above to the "before" section so it is placed before the `location /` block.
 
 ## Serving with S3 or other remote disks
 
@@ -65,37 +65,3 @@ When using S3 as your storage disk, the package detects that it is a remote disk
 This keeps PHP out of the image serving path entirely. If your S3 bucket is behind CloudFront, crawlers end up fetching the image from CloudFront's edge.
 
 The nginx `try_files` optimization does not apply to S3, since the files are not on the local filesystem. The redirect approach is used automatically instead.
-
-## Pre-generating images
-
-By default, OG images are generated lazily — on the first request from a crawler. If you want to generate them ahead of time, you can use the artisan command:
-
-```bash
-php artisan og-image:generate https://yourapp.com/page1 https://yourapp.com/page2
-```
-
-Or programmatically with `generateForUrl()`:
-
-```php
-use Spatie\OgImage\Facades\OgImage;
-
-$imageUrl = OgImage::generateForUrl('https://yourapp.com/blog/my-post');
-```
-
-This is useful for generating images after saving content, for example in a queued job:
-
-```php
-use Spatie\OgImage\Facades\OgImage;
-
-class PublishPostAction
-{
-    public function execute(Post $post): void
-    {
-        // ... publish logic ...
-
-        dispatch(function () use ($post) {
-            OgImage::generateForUrl($post->url);
-        });
-    }
-}
-```

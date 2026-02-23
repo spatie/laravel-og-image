@@ -3,7 +3,7 @@ title: Using a custom screenshot driver
 weight: 4
 ---
 
-By default, the package uses [Browsershot](https://github.com/spatie/browsershot) (headless Chrome) to take screenshots. You can also use Cloudflare's Browser Rendering by calling `useCloudflare()` — see [customizing screenshots](/docs/laravel-og-image/v1/basic-usage/customizing-screenshots).
+By default, the package uses [Browsershot](https://github.com/spatie/browsershot) (headless Chrome) to take screenshots. You can also use Cloudflare's Browser Rendering by calling `useCloudflare()`. See [customizing screenshots](/docs/laravel-og-image/v1/basic-usage/customizing-screenshots) for details.
 
 If neither of these fits your needs, you can create your own screenshot driver.
 

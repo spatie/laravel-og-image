@@ -36,7 +36,7 @@ OgImage::fallbackUsing(function (Request $request) {
 });
 ```
 
-The fallback view should be a regular Blade view with just the HTML content — no layout or scripts needed. Like `<x-og-image>`, the screenshot inherits the page's `<head>`, so your CSS, fonts, and Vite assets are available automatically.
+The fallback view should be a regular Blade view with just the HTML content, no layout or scripts needed. Like `<x-og-image>`, the screenshot inherits the page's `<head>`, so your CSS, fonts, and Vite assets are available automatically.
 
 ```blade
 {{-- resources/views/og-image/fallback.blade.php --}}

@@ -5,7 +5,7 @@ weight: 3
 
 When the package caches which URL to screenshot for an OG image, it uses the request URL without query parameters by default. This means `/posts?page=2` and `/posts?page=3` would both resolve to `/posts` for the screenshot.
 
-For most pages this is the right behavior — query parameters like pagination don't affect the OG image. But if your OG image content varies based on query parameters, you can customize how the URL is resolved.
+For most pages this is the right behavior, since query parameters like pagination don't affect the OG image. But if your OG image content varies based on query parameters, you can customize how the URL is resolved.
 
 ## Changing the URL resolution
 

@@ -39,7 +39,7 @@ The meta tags always point to `/og-image/{hash}.jpeg`. When that URL is first re
 
 ## Migrating from manual meta tags
 
-If your views already have `og:image`, `twitter:image`, or `twitter:card` meta tags, remove them. The package handles these automatically. Keep any other OG meta tags you have (`og:title`, `og:description`, `og:type`, `article:published_time`, etc.) — the package only manages the image-related tags.
+If your views already have `og:image`, `twitter:image`, or `twitter:card` meta tags, remove them. The package handles these automatically. Keep any other OG meta tags you have (`og:title`, `og:description`, `og:type`, `article:published_time`, etc.). The package only manages the image-related tags.
 
 ## Using a Blade view
 

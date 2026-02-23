@@ -5,7 +5,7 @@ weight: 5
 
 When you visit a page with `?ogimage`, the package renders a minimal HTML document that wraps your template content. This document includes the page's `<head>` (so CSS and fonts work) and a reset style that sets the viewport to the configured dimensions.
 
-If you need to customize this layout — for example, to add extra styles, scripts, or change the document structure — you can publish the view:
+If you need to customize this layout (for example, to add extra styles, scripts, or change the document structure), you can publish the view:
 
 ```bash
 php artisan vendor:publish --tag=og-image-views
@@ -29,4 +29,4 @@ The configured width in pixels (default: 1200).
 
 The configured height in pixels (default: 630).
 
-For even deeper control over how the screenshot page is rendered, you can override the `RenderOgImageScreenshotAction` — see [customizing actions](/docs/laravel-og-image/v1/advanced-usage/customizing-actions).
+For even deeper control over how the screenshot page is rendered, you can override the `RenderOgImageScreenshotAction`. See [customizing actions](/docs/laravel-og-image/v1/advanced-usage/customizing-actions) for details.
