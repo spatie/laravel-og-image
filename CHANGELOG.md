@@ -2,6 +2,16 @@
 
 All notable changes to `laravel-og-image` will be documented in this file.
 
+## 1.1.1 - 2026-02-24
+
+### What's Changed
+
+* Fix fallback cache poisoning by non-HTML responses
+
+When a non-HTML response (such as an RSS/Atom feed) was processed by the middleware with a fallback registered, `storeInCache()` was called before verifying the template was actually injected. Since non-HTML responses lack a `</body>` tag, the injection silently failed but the cache entry persisted with the wrong URL. Because all fallback pages share the same content hash, this poisoned the cache permanently.
+
+The fix moves `storeInCache()` to after the injection attempt and only executes it when the template was successfully injected.
+
 ## 1.1.0 - 2026-02-24
 
 - Add Laravel Boost skill
