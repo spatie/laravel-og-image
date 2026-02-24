@@ -21,11 +21,15 @@ class InjectOgImageFallbackAction
         $hash = $ogImage->hash($fallbackHtml);
         $format = $ogImage->defaultFormat();
 
-        $ogImage->storeInCache($hash, app(OgImageGenerator::class)->resolveScreenshotUrl());
-
         $template = "<template data-og-image data-og-hash=\"{$hash}\" data-og-format=\"{$format}\">{$fallbackHtml}</template>";
 
-        return $this->injectBeforeClosingTag($content, 'body', $template);
+        $result = $this->injectBeforeClosingTag($content, 'body', $template);
+
+        if ($result !== $content) {
+            $ogImage->storeInCache($hash, app(OgImageGenerator::class)->resolveScreenshotUrl());
+        }
+
+        return $result;
     }
 
     protected function renderFallback(Request $request): ?string

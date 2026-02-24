@@ -246,3 +246,22 @@ it('renders custom dimensions in screenshot mode', function () {
         ->toContain('height: 400px')
         ->toContain('<div>Custom</div>');
 });
+
+it('does not cache fallback url for non-html responses without a body tag', function () {
+    OgImage::fallbackUsing(function (Request $request) {
+        return view('test-fallback', ['title' => 'Fallback Title']);
+    });
+
+    Route::middleware(['web', RenderOgImageMiddleware::class])->get('/feed.xml', function () {
+        return response('<?xml version="1.0" encoding="UTF-8"?><rss><channel><title>Feed</title></channel></rss>', 200, [
+            'Content-Type' => 'application/xml',
+        ]);
+    });
+
+    $this->get('/feed.xml');
+
+    $html = view('test-fallback', ['title' => 'Fallback Title'])->render();
+    $hash = md5($html);
+
+    expect(Cache::has("og-image:{$hash}"))->toBeFalse();
+});
