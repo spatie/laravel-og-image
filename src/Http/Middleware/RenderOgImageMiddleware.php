@@ -5,6 +5,7 @@ namespace Spatie\OgImage\Http\Middleware;
 use Closure;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response as IlluminateResponse;
 use Spatie\OgImage\Actions\InjectOgImageFallbackAction;
 use Spatie\OgImage\Actions\RenderOgImageScreenshotAction;
 use Spatie\OgImage\OgImage;
@@ -37,7 +38,15 @@ class RenderOgImageMiddleware
 
         if ($content !== null) {
             $content = $this->injectMetaTagsInHead($content);
+
+            // setContent() wipes ->original, which breaks view assertions and downstream code
+            $original = $response instanceof IlluminateResponse ? $response->original : null;
+
             $response->setContent($content);
+
+            if ($response instanceof IlluminateResponse) {
+                $response->original = $original;
+            }
         }
 
         if ($isPreviewRequest) {
