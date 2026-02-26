@@ -40,6 +40,7 @@ class RenderOgImageMiddleware
             $content = $this->injectMetaTagsInHead($content);
 
             if ($response instanceof IlluminateResponse) {
+                // setContent() wipes ->original, which breaks view assertions and downstream code
                 $original = $response->original;
                 $response->setContent($content);
                 $response->original = $original;
