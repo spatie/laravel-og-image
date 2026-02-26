@@ -2,6 +2,18 @@
 
 All notable changes to `laravel-og-image` will be documented in this file.
 
+## 1.1.2 - 2026-02-26
+
+### What's Changed
+
+* Fix middleware destroying ->original by preserving it across setContent() calls by @mattiasgeniar in https://github.com/spatie/laravel-og-image/pull/2
+
+### New Contributors
+
+* @mattiasgeniar made their first contribution in https://github.com/spatie/laravel-og-image/pull/2
+
+**Full Changelog**: https://github.com/spatie/laravel-og-image/compare/1.1.1...1.1.2
+
 ## 1.1.1 - 2026-02-24
 
 ### What's Changed
