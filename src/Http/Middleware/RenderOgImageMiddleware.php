@@ -39,20 +39,14 @@ class RenderOgImageMiddleware
         if ($content !== null) {
             $content = $this->injectMetaTagsInHead($content);
 
-            if ($response instanceof IlluminateResponse) {
-                // setContent() wipes ->original, which breaks view assertions and downstream code
-                $original = $response->original;
-                $response->setContent($content);
-                $response->original = $original;
-            } else {
-                $response->setContent($content);
-                // setContent() wipes ->original, which breaks view assertions and downstream code
-                $original = $response instanceof IlluminateResponse ? $response->original : null;
-                $response->setContent($content);
+            // setContent() wipes ->original, which breaks view assertions and downstream code
+            $original = $response instanceof IlluminateResponse ? $response->original : null;
 
-                if ($response instanceof IlluminateResponse) {
-                    $response->original = $original;
-                }
+            $response->setContent($content);
+
+            if ($response instanceof IlluminateResponse) {
+                $response->original = $original;
+            }
         }
 
         if ($isPreviewRequest) {
