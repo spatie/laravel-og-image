@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
+use Illuminate\View\View;
 use Spatie\OgImage\Facades\OgImage;
 use Spatie\OgImage\Http\Middleware\RenderOgImageMiddleware;
 
@@ -245,6 +246,22 @@ it('renders custom dimensions in screenshot mode', function () {
         ->toContain('width: 800px')
         ->toContain('height: 400px')
         ->toContain('<div>Custom</div>');
+});
+
+it('preserves the response original property when injecting fallback', function () {
+    OgImage::fallbackUsing(function (Request $request) {
+        return view('test-fallback', ['title' => 'OG Fallback']);
+    });
+
+    Route::middleware(['web', RenderOgImageMiddleware::class])->get('/view-page', function () {
+        return view('test-page', ['title' => 'My Page']);
+    });
+
+    $response = $this->get('/view-page');
+
+    $response->assertOk();
+    expect($response->getContent())->toContain('<meta property="og:image"');
+    expect($response->original)->toBeInstanceOf(View::class);
 });
 
 it('does not cache fallback url for non-html responses without a body tag', function () {
