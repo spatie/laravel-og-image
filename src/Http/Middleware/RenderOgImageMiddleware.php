@@ -46,7 +46,13 @@ class RenderOgImageMiddleware
                 $response->original = $original;
             } else {
                 $response->setContent($content);
-            }
+                // setContent() wipes ->original, which breaks view assertions and downstream code
+                $original = $response instanceof IlluminateResponse ? $response->original : null;
+                $response->setContent($content);
+
+                if ($response instanceof IlluminateResponse) {
+                    $response->original = $original;
+                }
         }
 
         if ($isPreviewRequest) {
