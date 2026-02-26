@@ -38,11 +38,13 @@ class RenderOgImageMiddleware
 
         if ($content !== null) {
             $content = $this->injectMetaTagsInHead($content);
-            $original = $response instanceof IlluminateResponse ? $response->original : null;
-            $response->setContent($content);
 
             if ($response instanceof IlluminateResponse) {
+                $original = $response->original;
+                $response->setContent($content);
                 $response->original = $original;
+            } else {
+                $response->setContent($content);
             }
         }
 
