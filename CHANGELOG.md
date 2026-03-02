@@ -2,6 +2,14 @@
 
 All notable changes to `laravel-og-image` will be documented in this file.
 
+## 1.2.0 - 2026-03-02
+
+### What's Changed
+
+* Add `url` parameter to `<x-og-image>` component, allowing you to pass an existing image URL directly instead of generating one via screenshot
+
+**Full Changelog**: https://github.com/spatie/laravel-og-image/compare/1.1.2...1.2.0
+
 ## 1.1.2 - 2026-02-26
 
 ### What's Changed
