@@ -224,6 +224,62 @@ it('detects template tags with custom dimension attributes', function () {
     expect($response->getContent())->toContain('<template data-og-image');
 });
 
+it('injects meta tags with direct url from template', function () {
+    Route::middleware(['web', RenderOgImageMiddleware::class])->get('/direct-url', function () {
+        return response(<<<'HTML'
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+        </head>
+        <body>
+            <h1>My Page</h1>
+            <template data-og-image data-og-url="https://example.com/custom-og.jpg"></template>
+        </body>
+        </html>
+        HTML);
+    });
+
+    $response = $this->get('/direct-url');
+
+    $response->assertOk();
+    $content = $response->getContent();
+
+    expect($content)
+        ->toContain('<meta property="og:image" content="https://example.com/custom-og.jpg">')
+        ->toContain('<meta name="twitter:image" content="https://example.com/custom-og.jpg">')
+        ->toContain('<meta name="twitter:card" content="summary_large_image">');
+
+    $headEnd = stripos($content, '</head>');
+    $ogImagePos = strpos($content, '<meta property="og:image"');
+
+    expect($ogImagePos)->toBeLessThan($headEnd);
+});
+
+it('does not inject fallback when page has a direct url template', function () {
+    OgImage::fallbackUsing(function (Request $request) {
+        return view('test-fallback', ['title' => 'Should Not Appear']);
+    });
+
+    Route::middleware(['web', RenderOgImageMiddleware::class])->get('/direct-url', function () {
+        return response(<<<'HTML'
+        <!DOCTYPE html>
+        <html>
+        <head><meta charset="utf-8"></head>
+        <body>
+            <template data-og-image data-og-url="https://example.com/custom-og.jpg"></template>
+        </body>
+        </html>
+        HTML);
+    });
+
+    $response = $this->get('/direct-url');
+
+    expect($response->getContent())
+        ->not->toContain('Should Not Appear')
+        ->toContain('https://example.com/custom-og.jpg');
+});
+
 it('renders custom dimensions in screenshot mode', function () {
     Route::middleware(['web', RenderOgImageMiddleware::class])->get('/custom-size', function () {
         return response(<<<'HTML'
