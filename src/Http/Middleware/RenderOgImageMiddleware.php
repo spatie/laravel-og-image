@@ -86,6 +86,18 @@ class RenderOgImageMiddleware
 
     protected function injectMetaTagsInHead(string $content): string
     {
+        if (preg_match('/data-og-url="([^"]+)"/', $content, $urlMatch)) {
+            $url = $urlMatch[1];
+
+            $metaTags = implode(PHP_EOL, [
+                "<meta property=\"og:image\" content=\"{$url}\">",
+                "<meta name=\"twitter:image\" content=\"{$url}\">",
+                '<meta name="twitter:card" content="summary_large_image">',
+            ]);
+
+            return str_ireplace('</head>', $metaTags.PHP_EOL.'</head>', $content);
+        }
+
         if (! preg_match('/data-og-hash="([a-f0-9]+)"/', $content, $hashMatch)) {
             return $content;
         }

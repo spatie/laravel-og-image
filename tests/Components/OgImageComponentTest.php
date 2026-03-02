@@ -91,3 +91,24 @@ it('does not include dimension attributes without width and height', function ()
     $view->assertDontSee('data-og-width', false);
     $view->assertDontSee('data-og-height', false);
 });
+
+it('renders a template with a direct url', function () {
+    $view = $this->blade('<x-og-image url="https://example.com/my-og-image.jpg" />');
+
+    $view->assertSee('<template data-og-image', false);
+    $view->assertSee('data-og-url="https://example.com/my-og-image.jpg"', false);
+    $view->assertDontSee('data-og-hash', false);
+});
+
+it('does not store cache when using a direct url', function () {
+    $view = $this->blade('<x-og-image url="https://example.com/my-og-image.jpg" />');
+
+    $view->assertDontSee('data-og-hash', false);
+    expect(Cache::get('og-image:'.md5('https://example.com/my-og-image.jpg')))->toBeNull();
+});
+
+it('escapes the url attribute', function () {
+    $view = $this->blade('<x-og-image url="https://example.com/image?a=1&b=2" />');
+
+    $view->assertSee('data-og-url="https://example.com/image?a=1&amp;b=2"', false);
+});

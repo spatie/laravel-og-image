@@ -63,6 +63,20 @@ The view receives the `data` array as its variables:
 
 This is useful when you reuse the same OG image layout across multiple pages or when the template is complex enough that you want it in its own file.
 
+## Using an existing image URL
+
+If you already have an OG image URL (for example, a custom designed image from a CMS), you can pass it directly using the `url` attribute:
+
+```blade
+@if($post->og_image)
+    <x-og-image :url="$post->og_image" />
+@else
+    <x-og-image view="og-image.post" :data="['title' => $post->title]" />
+@endif
+```
+
+When a `url` is provided, the package skips screenshot generation entirely and injects the given URL in the `og:image` and `twitter:image` meta tags. This is useful when you want the generated OG image as a fallback, but prefer a hand crafted image when one is available.
+
 ## Specifying the image format
 
 By default, images are generated as JPEG. You can specify a different format:

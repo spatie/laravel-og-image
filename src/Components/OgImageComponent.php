@@ -15,6 +15,7 @@ class OgImageComponent extends Component
         public ?string $format = null,
         public ?int $width = null,
         public ?int $height = null,
+        public ?string $url = null,
     ) {
         if (($width === null) !== ($height === null)) {
             throw InvalidOgImage::widthAndHeightMustBothBeProvided();
@@ -24,6 +25,12 @@ class OgImageComponent extends Component
     public function render(): Closure
     {
         return function (array $data) {
+            if ($this->url) {
+                $url = e($this->url);
+
+                return "<template data-og-image data-og-url=\"{$url}\"></template>";
+            }
+
             $html = $this->view
                 ? view($this->view, $this->data)->render()
                 : trim($data['slot']->toHtml());
