@@ -5,6 +5,7 @@ namespace Spatie\OgImage\Actions;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Uri;
 use Spatie\OgImage\Exceptions\CouldNotGenerateOgImage;
 use Spatie\OgImage\OgImage;
 use Spatie\OgImage\OgImageGenerator;
@@ -92,9 +93,12 @@ class GenerateOgImageAction
                 return;
             }
 
+            $pageUrl = Uri::of($pageUrl)->withQuery([
+                config('og-image.preview_parameter', 'ogimage') => '',
+            ]);
             try {
                 app(OgImageGenerator::class)->generate(
-                    $pageUrl.'?'.config('og-image.preview_parameter', 'ogimage'),
+                    $pageUrl->toString(),
                     $path,
                     $cached['width'] ?? null,
                     $cached['height'] ?? null,
