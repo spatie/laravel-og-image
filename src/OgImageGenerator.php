@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Uri;
 use RuntimeException;
 use Spatie\LaravelScreenshot\Drivers\CloudflareDriver;
 use Spatie\LaravelScreenshot\Drivers\ScreenshotDriver;
@@ -162,9 +163,11 @@ class OgImageGenerator
 
         $ogImage->storeInCache($hash, $pageUrl, $width, $height);
 
-        $previewParameter = config('og-image.preview_parameter', 'ogimage');
+        $previewUrl = Uri::of($pageUrl)->withQuery([
+            config('og-image.preview_parameter', 'ogimage') => '',
+        ]);
 
-        $this->generate("{$pageUrl}?{$previewParameter}", $imagePath, $width, $height);
+        $this->generate($previewUrl, $imagePath, $width, $height);
 
         return $disk->url($imagePath);
     }
