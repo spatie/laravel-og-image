@@ -2,6 +2,24 @@
 
 All notable changes to `laravel-og-image` will be documented in this file.
 
+## 1.1.3 - 2026-06-16
+
+### What's Changed
+
+* Bump ramsey/composer-install from 3 to 4 by @dependabot[bot] in https://github.com/spatie/laravel-og-image/pull/4
+* Bump dependabot/fetch-metadata from 2.5.0 to 3.0.0 by @dependabot[bot] in https://github.com/spatie/laravel-og-image/pull/6
+* Bump dependabot/fetch-metadata from 3.0.0 to 3.1.0 by @dependabot[bot] in https://github.com/spatie/laravel-og-image/pull/7
+* Update PHP and Laravel version requirements by @wannevancamp in https://github.com/spatie/laravel-og-image/pull/5
+* Ensure OG images for a page URL with existing query parameters is handled correctly by @beblife in https://github.com/spatie/laravel-og-image/pull/8
+
+### New Contributors
+
+* @dependabot[bot] made their first contribution in https://github.com/spatie/laravel-og-image/pull/4
+* @wannevancamp made their first contribution in https://github.com/spatie/laravel-og-image/pull/5
+* @beblife made their first contribution in https://github.com/spatie/laravel-og-image/pull/8
+
+**Full Changelog**: https://github.com/spatie/laravel-og-image/compare/1.3.0...1.1.3
+
 ## 1.2.0 - 2026-03-02
 
 ### What's Changed
