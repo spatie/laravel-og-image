@@ -139,3 +139,25 @@ it('serves the image directly for local disks', function () {
     expect($response->getStatusCode())->toBe(200);
     expect($response->headers->get('Content-Type'))->toBe('image/jpeg');
 });
+
+it('correctly handles cached urls with existing query parameters', function () {
+    $ogImage = app(OgImage::class);
+    $ogImage->storeInCache('abc123', 'https://example.com/page?foo=bar');
+
+    $mockGenerator = Mockery::mock(OgImageGenerator::class);
+    $mockGenerator->shouldReceive('generate')
+        ->once()
+        ->withArgs(function ($url, $path, $width, $height) {
+            return str_contains($url, '?foo=bar&ogimage');
+        })
+        ->andReturnUsing(function ($url, $path) {
+            Storage::disk('public')->put($path, 'fake-jpeg-content');
+        });
+
+    app()->instance(OgImageGenerator::class, $mockGenerator);
+
+    $action = app(GenerateOgImageAction::class);
+    $response = $action->execute('abc123.jpeg');
+
+    expect($response->getStatusCode())->toBe(200);
+});
