@@ -19,7 +19,7 @@ use Spatie\OgImage\OgImageGenerator;
  * @method static string generateForUrl(string $pageUrl, ?string $format = null)
  * @method static object getActionClass(string $actionName, string $actionClass)
  *
- * @see \Spatie\OgImage\OgImageGenerator
+ * @see OgImageGenerator
  */
 class OgImage extends Facade
 {
