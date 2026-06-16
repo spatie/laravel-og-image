@@ -2,6 +2,14 @@
 
 All notable changes to `laravel-og-image` will be documented in this file.
 
+## 1.1.4 - 2026-06-16
+
+### What's Changed
+
+* Handle existing query parameters in generateForUrl by @freekmurze in https://github.com/spatie/laravel-og-image/pull/9
+
+**Full Changelog**: https://github.com/spatie/laravel-og-image/compare/1.1.3...1.1.4
+
 ## 1.1.3 - 2026-06-16
 
 ### What's Changed
