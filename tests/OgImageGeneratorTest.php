@@ -1,5 +1,6 @@
 <?php
 
+use JMac\Testing\Double;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Spatie\OgImage\OgImage;
@@ -47,7 +48,7 @@ function fakePageWithOgTemplate(string $pageUrl): void
 
 function partialGeneratorExpectingPreviewUrl(Closure $assertUrl): OgImageGenerator
 {
-    $generator = Mockery::mock(OgImageGenerator::class)->makePartial();
+    $generator = Double::for(OgImageGenerator::class)->passthru();
 
     $generator->shouldReceive('generate')
         ->once()

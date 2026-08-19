@@ -1,5 +1,6 @@
 <?php
 
+use JMac\Testing\Double;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -38,7 +39,7 @@ it('creates an og image when visiting the og image url', function () {
 
     expect(Cache::get("og-image:{$hash}")['url'])->toBe('http://localhost/test-page');
 
-    $mockGenerator = Mockery::mock(OgImageGenerator::class);
+    $mockGenerator = Double::for(OgImageGenerator::class);
     $mockGenerator->shouldReceive('generate')
         ->once()
         ->andReturnUsing(function ($url, $path) {
