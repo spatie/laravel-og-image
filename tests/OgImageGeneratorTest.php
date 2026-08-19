@@ -1,5 +1,6 @@
 <?php
 
+use JMac\Testing\Matching\Argument;
 use JMac\Testing\Double;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -50,10 +51,7 @@ function partialGeneratorExpectingPreviewUrl(Closure $assertUrl): OgImageGenerat
 {
     $generator = Double::for(OgImageGenerator::class)->passthru();
 
-    $generator->shouldReceive('generate')
-        ->once()
-        ->withArgs(fn ($url) => $assertUrl($url))
-        ->andReturnUsing(function ($url, $path) {
+    $generator->expects('generate')->with(Argument::satisfies(fn ($url) => $assertUrl($url)))->resolves(function ($url, $path) {
             Storage::disk('public')->put($path, 'fake-jpeg-content');
         });
 

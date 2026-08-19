@@ -40,9 +40,7 @@ it('throws CouldNotGenerateOgImage when screenshot fails', function () {
     $ogImage->storeInCache('abc123', 'https://example.com/page');
 
     $mockGenerator = Double::for(OgImageGenerator::class);
-    $mockGenerator->shouldReceive('generate')
-        ->once()
-        ->andThrow(new RuntimeException('Chrome not found'));
+    $mockGenerator->expects('generate')->throws(new RuntimeException('Chrome not found'));
 
     app()->instance(OgImageGenerator::class, $mockGenerator);
 
@@ -108,7 +106,7 @@ it('does not regenerate when image already exists on disk', function () {
     Storage::disk('public')->put('og-images/abc123.jpeg', 'existing-content');
 
     $mockGenerator = Double::for(OgImageGenerator::class);
-    $mockGenerator->shouldNotReceive('generate');
+    $mockGenerator->expects('generate')->never();
     app()->instance(OgImageGenerator::class, $mockGenerator);
 
     $action = app(GenerateOgImageAction::class);

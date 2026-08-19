@@ -40,9 +40,7 @@ it('creates an og image when visiting the og image url', function () {
     expect(Cache::get("og-image:{$hash}")['url'])->toBe('http://localhost/test-page');
 
     $mockGenerator = Double::for(OgImageGenerator::class);
-    $mockGenerator->shouldReceive('generate')
-        ->once()
-        ->andReturnUsing(function ($url, $path) {
+    $mockGenerator->expects('generate')->resolves(function ($url, $path) {
             expect($url)->toContain('?ogimage');
 
             Storage::disk('public')->put($path, 'fake-jpeg-content');
