@@ -1,7 +1,5 @@
 <?php
 
-use JMac\Testing\Matching\Argument;
-use JMac\Testing\Double;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Spatie\OgImage\OgImage;
@@ -16,11 +14,10 @@ it('appends the preview parameter to a url without query parameters', function (
 
     fakePageWithOgTemplate($pageUrl);
 
-    $generator = partialGeneratorExpectingPreviewUrl(function ($url) {
-        return str_contains((string) $url, 'https://example.com/page?ogimage');
-    });
-
+    $generator = new FakeOgImageGenerator;
     $generator->generateForUrl($pageUrl);
+
+    expect($generator->generatedUrl)->toContain('https://example.com/page?ogimage');
 });
 
 it('appends the preview parameter to a url with existing query parameters', function () {
@@ -28,14 +25,12 @@ it('appends the preview parameter to a url with existing query parameters', func
 
     fakePageWithOgTemplate($pageUrl);
 
-    $generator = partialGeneratorExpectingPreviewUrl(function ($url) {
-        $url = (string) $url;
-
-        return str_contains($url, '?foo=bar&ogimage')
-            && ! str_contains($url, '?foo=bar?ogimage');
-    });
-
+    $generator = new FakeOgImageGenerator;
     $generator->generateForUrl($pageUrl);
+
+    expect($generator->generatedUrl)
+        ->toContain('?foo=bar&ogimage')
+        ->not->toContain('?foo=bar?ogimage');
 });
 
 function fakePageWithOgTemplate(string $pageUrl): void
@@ -47,13 +42,14 @@ function fakePageWithOgTemplate(string $pageUrl): void
     ]);
 }
 
-function partialGeneratorExpectingPreviewUrl(Closure $assertUrl): OgImageGenerator
+class FakeOgImageGenerator extends OgImageGenerator
 {
-    $generator = Double::for(OgImageGenerator::class)->passthru();
+    public ?string $generatedUrl = null;
 
-    $generator->expects('generate')->with(Argument::satisfies(fn ($url) => $assertUrl($url)))->resolves(function ($url, $path) {
-            Storage::disk('public')->put($path, 'fake-jpeg-content');
-        });
+    public function generate(string $url, string $path, ?int $width = null, ?int $height = null): void
+    {
+        $this->generatedUrl = $url;
 
-    return $generator;
+        Storage::disk('public')->put($path, 'fake-jpeg-content');
+    }
 }
