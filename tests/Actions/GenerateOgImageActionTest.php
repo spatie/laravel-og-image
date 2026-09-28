@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Storage;
+use JMac\Testing\Double;
+use JMac\Testing\Matching\Argument;
 use Spatie\OgImage\Actions\GenerateOgImageAction;
 use Spatie\OgImage\Exceptions\CouldNotGenerateOgImage;
 use Spatie\OgImage\OgImage;
@@ -16,13 +18,10 @@ it('uses the configured lock timeout', function () {
     $ogImage = app(OgImage::class);
     $ogImage->storeInCache('abc123', 'https://example.com/page');
 
-    $mockGenerator = Mockery::mock(OgImageGenerator::class);
-    $mockGenerator->shouldReceive('generate')
-        ->once()
-        ->withArgs(function ($url, $path, $width, $height) {
-            return str_contains($url, '?ogimage');
-        })
-        ->andReturnUsing(function ($url, $path) {
+    $mockGenerator = Double::for(OgImageGenerator::class);
+    $mockGenerator->expects('generate')
+        ->with(Argument::satisfies(fn ($url) => str_contains($url, '?ogimage')), Argument::remaining())
+        ->resolves(function ($url, $path) {
             Storage::disk('public')->put($path, 'fake-jpeg-content');
         });
 
@@ -38,10 +37,8 @@ it('throws CouldNotGenerateOgImage when screenshot fails', function () {
     $ogImage = app(OgImage::class);
     $ogImage->storeInCache('abc123', 'https://example.com/page');
 
-    $mockGenerator = Mockery::mock(OgImageGenerator::class);
-    $mockGenerator->shouldReceive('generate')
-        ->once()
-        ->andThrow(new RuntimeException('Chrome not found'));
+    $mockGenerator = Double::for(OgImageGenerator::class);
+    $mockGenerator->expects('generate')->throws(new RuntimeException('Chrome not found'));
 
     app()->instance(OgImageGenerator::class, $mockGenerator);
 
@@ -53,13 +50,10 @@ it('passes cached dimensions to the generator', function () {
     $ogImage = app(OgImage::class);
     $ogImage->storeInCache('abc123', 'https://example.com/page', 800, 400);
 
-    $mockGenerator = Mockery::mock(OgImageGenerator::class);
-    $mockGenerator->shouldReceive('generate')
-        ->once()
-        ->withArgs(function ($url, $path, $width, $height) {
-            return $width === 800 && $height === 400;
-        })
-        ->andReturnUsing(function ($url, $path) {
+    $mockGenerator = Double::for(OgImageGenerator::class);
+    $mockGenerator->expects('generate')
+        ->with(Argument::any(), Argument::any(), 800, 400)
+        ->resolves(function ($url, $path) {
             Storage::disk('public')->put($path, 'fake-jpeg-content');
         });
 
@@ -73,13 +67,10 @@ it('passes null dimensions when none are cached', function () {
     $ogImage = app(OgImage::class);
     $ogImage->storeInCache('abc123', 'https://example.com/page');
 
-    $mockGenerator = Mockery::mock(OgImageGenerator::class);
-    $mockGenerator->shouldReceive('generate')
-        ->once()
-        ->withArgs(function ($url, $path, $width, $height) {
-            return $width === null && $height === null;
-        })
-        ->andReturnUsing(function ($url, $path) {
+    $mockGenerator = Double::for(OgImageGenerator::class);
+    $mockGenerator->expects('generate')
+        ->with(Argument::any(), Argument::any(), null, null)
+        ->resolves(function ($url, $path) {
             Storage::disk('public')->put($path, 'fake-jpeg-content');
         });
 
@@ -106,8 +97,8 @@ it('does not regenerate when image already exists on disk', function () {
 
     Storage::disk('public')->put('og-images/abc123.jpeg', 'existing-content');
 
-    $mockGenerator = Mockery::mock(OgImageGenerator::class);
-    $mockGenerator->shouldNotReceive('generate');
+    $mockGenerator = Double::for(OgImageGenerator::class);
+    $mockGenerator->expects('generate')->never();
     app()->instance(OgImageGenerator::class, $mockGenerator);
 
     $action = app(GenerateOgImageAction::class);
@@ -144,13 +135,10 @@ it('correctly handles cached urls with existing query parameters', function () {
     $ogImage = app(OgImage::class);
     $ogImage->storeInCache('abc123', 'https://example.com/page?foo=bar');
 
-    $mockGenerator = Mockery::mock(OgImageGenerator::class);
-    $mockGenerator->shouldReceive('generate')
-        ->once()
-        ->withArgs(function ($url, $path, $width, $height) {
-            return str_contains($url, '?foo=bar&ogimage');
-        })
-        ->andReturnUsing(function ($url, $path) {
+    $mockGenerator = Double::for(OgImageGenerator::class);
+    $mockGenerator->expects('generate')
+        ->with(Argument::satisfies(fn ($url) => str_contains($url, '?foo=bar&ogimage')), Argument::remaining())
+        ->resolves(function ($url, $path) {
             Storage::disk('public')->put($path, 'fake-jpeg-content');
         });
 
