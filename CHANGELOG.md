@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-og-image` will be documented in this file.
 
+## 1.3.2 - 2026-10-02
+
+Don't compile user content (like `@each` or `{{ }}` in a title) in the og-image component as Blade (#12)
+
 ## 1.3.1 - 2026-06-16
 
 This release re-publishes the fixes from `1.1.3` and `1.1.4` under a version that correctly supersedes `1.3.0`. Those two tags were accidentally numbered below `1.3.0`, so Composer kept resolving the older `1.3.0` as the latest stable release. No code was lost: this tag includes the Laravel 13 support from `1.3.0` together with the query parameter handling fixes.
