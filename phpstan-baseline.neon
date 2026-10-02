@@ -5,3 +5,8 @@ parameters:
 			identifier: argument.type
 			path: src/Actions/RenderOgImageScreenshotAction.php
 			reportUnmatched: false
+		-
+			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
+			identifier: argument.type
+			path: src/Components/OgImageComponent.php
+			reportUnmatched: false

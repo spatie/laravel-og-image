@@ -112,3 +112,32 @@ it('escapes the url attribute', function () {
 
     $view->assertSee('data-og-url="https://example.com/image?a=1&amp;b=2"', false);
 });
+
+it('does not compile blade syntax in content rendered by a view', function (string $title) {
+    $view = $this->blade('<x-og-image view="og-image.post" :data="[\'title\' => $title]" />', ['title' => $title]);
+
+    $view->assertSee('<h1>'.e($title).'</h1>', false);
+})->with([
+    '@each(\'missing-view\', $items, \'item\')',
+    '@if(true) shown @endif',
+    '{{ $x }}',
+    '{!! $x !!}',
+    '@php echo "executed"; @endphp',
+]);
+
+it('does not compile blade syntax in slot content', function (string $title) {
+    $view = $this->blade('<x-og-image><div>{{ $title }}</div></x-og-image>', ['title' => $title]);
+
+    $view->assertSee('<div>'.e($title).'</div>', false);
+})->with([
+    '@each(\'missing-view\', $items, \'item\')',
+    '@if(true) shown @endif',
+    '{{ $x }}',
+    '@verbatim @endverbatim',
+]);
+
+it('does not compile blade syntax in a direct url', function () {
+    $view = $this->blade('<x-og-image :url="$url" />', ['url' => 'https://example.com/{{ $x }}/@if(true)']);
+
+    $view->assertSee('data-og-url="https://example.com/{{ $x }}/@if(true)"', false);
+});
