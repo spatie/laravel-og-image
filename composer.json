@@ -25,6 +25,7 @@
         "spatie/laravel-screenshot": "^1.1"
     },
     "require-dev": {
+        "jasonmccreary/double": "^1.0",
         "larastan/larastan": "^3.0",
         "laravel/pint": "^1.14",
         "nunomaduro/collision": "^8.8",

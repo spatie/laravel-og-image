@@ -51,10 +51,15 @@ it('can store and retrieve from cache', function () {
 });
 
 it('skips writing to cache when already cached', function () {
-    Cache::shouldReceive('has')->with('og-image:test-hash')->once()->andReturn(true);
-    Cache::shouldReceive('forever')->never();
+    $this->ogImage->storeInCache('test-hash', 'https://example.com/original-page', 800, 400);
 
     $this->ogImage->storeInCache('test-hash', 'https://example.com/my-page');
+
+    expect($this->ogImage->getFromCache('test-hash'))->toBe([
+        'url' => 'https://example.com/original-page',
+        'width' => 800,
+        'height' => 400,
+    ]);
 });
 
 it('returns null when not in cache', function () {
