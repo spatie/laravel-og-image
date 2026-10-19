@@ -1,9 +1,9 @@
 <?php
 
-use JMac\Testing\Double;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use JMac\Testing\Double;
 use Spatie\OgImage\Http\Middleware\RenderOgImageMiddleware;
 use Spatie\OgImage\OgImage;
 use Spatie\OgImage\OgImageGenerator;
@@ -41,10 +41,10 @@ it('creates an og image when visiting the og image url', function () {
 
     $mockGenerator = Double::for(OgImageGenerator::class);
     $mockGenerator->expects('generate')->resolves(function ($url, $path) {
-            expect($url)->toContain('?ogimage');
+        expect($url)->toContain('?ogimage');
 
-            Storage::disk('public')->put($path, 'fake-jpeg-content');
-        });
+        Storage::disk('public')->put($path, 'fake-jpeg-content');
+    });
     app()->instance(OgImageGenerator::class, $mockGenerator);
 
     $response = $this->get("/og-image/{$hash}.jpeg");

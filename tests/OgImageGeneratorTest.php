@@ -17,7 +17,8 @@ it('appends the preview parameter to a url without query parameters', function (
     $generator = new FakeOgImageGenerator;
     $generator->generateForUrl($pageUrl);
 
-    expect($generator->generatedUrl)->toContain('https://example.com/page?ogimage');
+    expect($generator->generatedUrls)->toHaveCount(1)
+        ->and($generator->generatedUrls[0])->toContain('https://example.com/page?ogimage');
 });
 
 it('appends the preview parameter to a url with existing query parameters', function () {
@@ -28,7 +29,8 @@ it('appends the preview parameter to a url with existing query parameters', func
     $generator = new FakeOgImageGenerator;
     $generator->generateForUrl($pageUrl);
 
-    expect($generator->generatedUrl)
+    expect($generator->generatedUrls)->toHaveCount(1)
+        ->and($generator->generatedUrls[0])
         ->toContain('?foo=bar&ogimage')
         ->not->toContain('?foo=bar?ogimage');
 });
@@ -44,11 +46,12 @@ function fakePageWithOgTemplate(string $pageUrl): void
 
 class FakeOgImageGenerator extends OgImageGenerator
 {
-    public ?string $generatedUrl = null;
+    /** @var list<string> */
+    public array $generatedUrls = [];
 
     public function generate(string $url, string $path, ?int $width = null, ?int $height = null): void
     {
-        $this->generatedUrl = $url;
+        $this->generatedUrls[] = $url;
 
         Storage::disk('public')->put($path, 'fake-jpeg-content');
     }
