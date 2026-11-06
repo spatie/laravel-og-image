@@ -28,9 +28,13 @@ jobs:
       fail-fast: true
       matrix:
         os: [ubuntu-latest]
-        php: [8.5, 8.4]
+        php: ['8.6', '8.5', '8.4']
         laravel: [13.*, 12.*]
         stability: [prefer-lowest, prefer-stable]
+        exclude:
+          # PHP 8.6 needs Pest 5, whose Symfony Process 8 requirement conflicts with Laravel 12.
+          - php: '8.6'
+            laravel: 12.*
         include:
           - laravel: 13.*
             testbench: 11.*
@@ -56,8 +60,11 @@ jobs:
           echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
       - name: Install dependencies
+        env:
+          # Laravel 13.32 fixes PHP 8.6 session handler deprecations.
+          LARAVEL_VERSION: ${{ matrix.php == '8.6' && '^13.32' || matrix.laravel }}
         run: |
-          composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+          composer require "laravel/framework:$LARAVEL_VERSION" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
           composer update --${{ matrix.stability }} --prefer-dist --no-interaction
 
       - name: Install Puppeteer with Chromium
